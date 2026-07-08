@@ -32,6 +32,10 @@ try:
             comentarios = supabase.table("comentarios").select("*").eq("post_id", post['id']).execute().data
             for com in comentarios:
                 st.markdown(f"**{com['autor']}**: {com['contenido']}")
+                # Botón de eliminar
+                if st.button("🗑️ Eliminar", key=f"del_{com['id']}"):
+                    supabase.table("comentarios").delete().eq("id", com['id']).execute()
+                    st.rerun()
             
             # Formulario para nuevo comentario
             with st.form(key=f"form_{post['id']}", clear_on_submit=True):
@@ -44,5 +48,6 @@ try:
                             "autor": st.session_state.alias
                         }).execute()
                         st.rerun()
+                        
 except Exception as e:
     st.error(f"Error: {e}")
