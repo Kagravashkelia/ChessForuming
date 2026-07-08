@@ -22,20 +22,28 @@ try:
             st.caption(f"Publicado por: {post['autor']}")
             
             # Botón de eliminar
-            if st.button("🗑️ Eliminar", key=f"del_{post['id']}"):
-                supabase.table("posts").delete().eq("id", post['id']).execute()
-                st.rerun()
+            # SOLO MUESTRA EL BOTÓN DE BORRAR SI ERES ADMIN
+            if st.session_state.is_admin:
+                if st.button("🗑️ Eliminar Post", key=f"del_post_{post['id']}"):
+                    supabase.table("posts").delete().eq("id", post['id']).execute()
+                    st.rerun()
 
             # Sección de comentarios
             st.divider()
             st.write("💬 Respuestas:")
             comentarios = supabase.table("comentarios").select("*").eq("post_id", post['id']).execute().data
+            
             for com in comentarios:
-                st.markdown(f"**{com['autor']}**: {com['contenido']}")
-                # Botón de eliminar
-                if st.button("🗑️ Eliminar", key=f"del_{com['id']}"):
-                    supabase.table("comentarios").delete().eq("id", com['id']).execute()
-                    st.rerun()
+                # Usamos columnas para alinear el mensaje y el botón de borrar
+                c1, c2 = st.columns([0.8, 0.2])
+                with c1:
+                    st.markdown(f"**{com['autor']}**: {com['contenido']}")
+                with c2:
+                    # CLAVE AQUÍ: key único usando 'del_com' para no chocar con 'del_post'
+                    if st.button("🗑️", key=f"del_com_{com['id']}"):
+                        # CORRECCIÓN AQUÍ: eq("id", ...) porque borramos por ID del comentario
+                        supabase.table("comentarios").delete().eq("id", com['id']).execute()
+                        st.rerun()
             
             # Formulario para nuevo comentario
             with st.form(key=f"form_{post['id']}", clear_on_submit=True):
