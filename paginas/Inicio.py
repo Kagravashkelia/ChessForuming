@@ -1,5 +1,6 @@
 import streamlit as st
 from db import supabase
+import streamlit_antd_components as sac
 
 st.title("ChessForuming 🐦‍🔥")
 
@@ -25,8 +26,9 @@ try:
             # SOLO MUESTRA EL BOTÓN DE BORRAR SI ERES ADMIN
             if st.session_state.is_admin:
                 if st.button("🗑️ Eliminar Post", key=f"del_post_{post['id']}"):
-                    supabase.table("posts").delete().eq("id", post['id']).execute()
-                    st.rerun()
+                    with st.spinner("Borrando..."):
+                        supabase.table("posts").delete().eq("id", post['id']).execute()
+                        st.rerun()
 
             # Sección de comentarios
             st.divider()
