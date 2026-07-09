@@ -1,6 +1,5 @@
 import streamlit as st
 from db import supabase
-import streamlit_antd_components as sac
 
 st.title("ChessForuming 🐦‍🔥")
 
